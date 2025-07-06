@@ -1,0 +1,33 @@
+# Ignore ambiente virtual
+.venv/
+venv/
+
+# Ignore pastas de dados e resultados
+data/
+output/
+logs/
+__pycache__/
+
+# Arquivos temporários e de sistema
+*.pyc
+*.pyo
+*.swp
+*.bak
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup de editores
+*~
+*.sublime-workspace
+*.vscode/
+.idea/
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# Arquivos sensíveis (ex: credenciais)
+.env
+*.env
+
+# SQLite (se você usar algum local)
+*.db
