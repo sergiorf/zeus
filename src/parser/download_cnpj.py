@@ -17,26 +17,48 @@ FILES = [
     "Socios5.zip", "Socios6.zip", "Socios7.zip", "Socios8.zip", "Socios9.zip",
 ]
 
+def get_remote_size(url):
+    """Returns the content length of the file in bytes (int) or None if not found."""
+    try:
+        response = requests.head(url)
+        if response.status_code == 200 and 'Content-Length' in response.headers:
+            return int(response.headers['Content-Length'])
+    except requests.RequestException:
+        pass
+    return None
+
 def download_file(filename):
     url = BASE_URL + filename
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     path = os.path.join(OUTPUT_DIR, filename)
 
-    if os.path.exists(path):
-        print(f"[✓] Já existe: {filename}")
+    remote_size = get_remote_size(url)
+    local_size = os.path.getsize(path) if os.path.exists(path) else -1
+
+    if remote_size is not None and local_size == remote_size:
+        print(f"[✓] Já existe (tamanho OK): {filename}")
         return
 
+    if os.path.exists(path):
+        print(f"[↻] Tamanho diferente, reiniciando: {filename}")
+        os.remove(path)
+
     print(f"↓ Baixando: {filename}")
-    with requests.get(url, stream=True) as r:
-        r.raise_for_status()
-        with open(path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-    print(f"[✓] Concluído: {filename}")
+    try:
+        with requests.get(url, stream=True) as r:
+            r.raise_for_status()
+            with open(path, "wb") as f:
+                downloaded = 0
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+        print(f"[✓] Concluído: {filename} ({downloaded / 1024**2:.2f} MB)")
+    except Exception as e:
+        print(f"[!] Erro durante download de {filename}: {e}")
+        if os.path.exists(path):
+            os.remove(path)
 
 if __name__ == "__main__":
     for file in FILES:
-        try:
-            download_file(file)
-        except Exception as e:
-            print(f"[!] Erro ao baixar {file}: {e}")
+        download_file(file)
