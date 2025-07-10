@@ -38,7 +38,7 @@ def download_file(filename):
     if remote_size is not None and local_size == remote_size:
         print(f"[✓] Já existe (tamanho OK): {filename}")
         return
-
+        
     if os.path.exists(path):
         print(f"[↻] Tamanho diferente, reiniciando: {filename}")
         os.remove(path)
